@@ -253,7 +253,7 @@ const Moviepage = () => {
         try {
           // Updated to the standard OMSS v1.0 endpoint structure
           const response = await fetch(
-            `https://core-vf2j.onrender.com/v1/movie/${movie.id}`,
+            `https://core-vf2j.onrender.com/v1/movies/${movie.id}`,
           );
 
           if (!response.ok) throw new Error("Endpoint not found");
