@@ -9,7 +9,7 @@ import Moviepage from "./pages/Moviepage";
 import SignIn from "./pages/Signin";
 import SignUp from "./pages/Signup";
 import AIRecommendation from "./pages/AIRecommendation";
-import Personpage from "./pages/PersonPage";
+import Personpage from "./pages/Personpage";
 
 // --------------------------------------------------
 // Loading screen
