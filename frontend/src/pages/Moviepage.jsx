@@ -252,8 +252,9 @@ const Moviepage = () => {
         setIsFetchingStream(true);
         try {
           // 1. Plural endpoint as per the docs
+          // Clean the ID by forcing it into a strict integer
           const response = await fetch(
-            `https://core-vf2j.onrender.com/v1/movies/${movie.id}`,
+            `https://core-vf2j.onrender.com/v1/movies/${parseInt(movie.id)}`,
           );
 
           if (!response.ok) throw new Error("Endpoint not found");
