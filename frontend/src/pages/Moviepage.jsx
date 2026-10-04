@@ -844,7 +844,8 @@ const Moviepage = () => {
               title={`Watch ${movie.title}`}
               className="h-full w-full"
               allowFullScreen
-              allow="autoplay; fullscreen; picture-in-picture"
+              allow="autoplay; fullscreen; picture-in-picture *; encrypted-media *"
+              referrerPolicy="origin-when-cross-origin"
             />
           </div>
         </div>
