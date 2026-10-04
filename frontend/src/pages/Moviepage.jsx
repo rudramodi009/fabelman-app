@@ -241,39 +241,45 @@ const Moviepage = () => {
   }, [showTrailer]);
 
   /* --------------------------------
-     CinePro Stream Fetcher
-  -------------------------------- */
+   CinePro Stream Fetcher
+-------------------------------- */
 
   useEffect(() => {
+    let isMounted = true;
+
     if (showPlayer && movie?.id) {
       const fetchCineProStream = async () => {
         setIsFetchingStream(true);
         try {
-          // Connected to live Render CinePro Core backend
+          // Updated to the standard OMSS v1.0 endpoint structure
           const response = await fetch(
-            `https://core-vf2j.onrender.com/sources?type=movie&tmdbId=${movie.id}`,
+            `https://core-vf2j.onrender.com/v1/movie/${movie.id}`,
           );
+
+          if (!response.ok) throw new Error("Endpoint not found");
           const data = await response.json();
 
-          // Assuming CinePro returns a standard OMSS source array
-          const mainStream = data.sources?.find(
-            (src) => src.format === "hls" || src.url.includes(".m3u8"),
-          );
-
-          if (mainStream) {
-            setStreamData(mainStream.url);
+          if (isMounted) {
+            const mainStream = data.sources?.find(
+              (src) => src.format === "hls" || src.url.includes(".m3u8"),
+            );
+            if (mainStream) setStreamData(mainStream.url);
           }
         } catch (err) {
           console.error("Failed to fetch CinePro stream:", err);
         } finally {
-          setIsFetchingStream(false);
+          if (isMounted) setIsFetchingStream(false);
         }
       };
 
       fetchCineProStream();
-    } else {
-      setStreamData(null);
     }
+
+    // Cleanup function prevents memory leaks and React synchronous state warnings
+    return () => {
+      isMounted = false;
+      setStreamData(null);
+    };
   }, [showPlayer, movie?.id]);
 
   /* --------------------------------
