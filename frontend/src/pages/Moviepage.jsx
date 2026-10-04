@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Play, Star, X, ChevronRight } from "lucide-react";
 import Personcard from "../components/Personcard";
+import ReactPlayer from "react-player";
 
 import imdbLogo from "../assets/imdb.svg";
 
@@ -22,6 +23,10 @@ const Moviepage = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  // CinePro Core Stream State
+  const [streamData, setStreamData] = useState(null);
+  const [isFetchingStream, setIsFetchingStream] = useState(false);
 
   /* --------------------------------
      Scroll to top
@@ -118,7 +123,6 @@ const Moviepage = () => {
 
         if (recommendationsResponse.ok) {
           const recommendationsData = await recommendationsResponse.json();
-
           setRecommendations(recommendationsData.results || []);
         }
 
@@ -199,7 +203,6 @@ const Moviepage = () => {
         }
 
         console.error("Movie page error:", error);
-
         setError(true);
       } finally {
         if (!controller.signal.aborted) {
@@ -228,16 +231,50 @@ const Moviepage = () => {
 
     if (showTrailer) {
       document.addEventListener("keydown", handleKeyDown);
-
       document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-
       document.body.style.overflow = "";
     };
   }, [showTrailer]);
+
+  /* --------------------------------
+     CinePro Stream Fetcher
+  -------------------------------- */
+
+  useEffect(() => {
+    if (showPlayer && movie?.id) {
+      const fetchCineProStream = async () => {
+        setIsFetchingStream(true);
+        try {
+          // Point this to your actual deployed CinePro instance
+          const response = await fetch(
+            `http://localhost:3000/sources?type=movie&tmdbId=${movie.id}`,
+          );
+          const data = await response.json();
+
+          // Assuming CinePro returns a standard OMSS source array
+          const mainStream = data.sources?.find(
+            (src) => src.format === "hls" || src.url.includes(".m3u8"),
+          );
+
+          if (mainStream) {
+            setStreamData(mainStream.url);
+          }
+        } catch (err) {
+          console.error("Failed to fetch CinePro stream:", err);
+        } finally {
+          setIsFetchingStream(false);
+        }
+      };
+
+      fetchCineProStream();
+    } else {
+      setStreamData(null);
+    }
+  }, [showPlayer, movie?.id]);
 
   /* --------------------------------
      Loading
@@ -288,7 +325,7 @@ const Moviepage = () => {
       </main>
     );
   }
-  const videoEmbedUrl = `https://embed.su/embed/movie/${movie.id}`;
+
   /* --------------------------------
      Images
   -------------------------------- */
@@ -378,12 +415,8 @@ const Moviepage = () => {
 
         {/* Cinematic overlays */}
 
-        {/* Cinematic vertical fade into the page */}
-
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-[#181818]" />
-
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent" />
-
         <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-[#181818] via-[#181818]/80 to-transparent" />
 
         {/* Hero content */}
@@ -391,7 +424,6 @@ const Moviepage = () => {
         <div className="relative z-10 mx-auto flex min-h-[680px] w-full max-w-[1500px] items-end px-5 pb-10 sm:min-h-[720px] sm:px-8 sm:pb-12 lg:px-12">
           <div className="flex w-full items-end gap-7 lg:gap-10">
             {/* Poster */}
-
             {posterUrl && (
               <div className="hidden shrink-0 md:block">
                 <img
@@ -403,18 +435,15 @@ const Moviepage = () => {
             )}
 
             {/* Content */}
-
             <div className="max-w-3xl pb-1">
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-[#e50914]">
                 Movie
               </p>
-
               <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                 {movie.title}
               </h1>
 
               {/* Ratings / metadata */}
-
               <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-gray-300 sm:text-base">
                 {ratings?.imdbRating && (
                   <div className="flex items-center gap-2">
@@ -423,32 +452,25 @@ const Moviepage = () => {
                       alt="IMDb"
                       className="h-5 w-10 object-contain"
                     />
-
                     <span className="font-medium text-white">
                       {ratings.imdbRating}
                     </span>
                   </div>
                 )}
-
                 {movie.vote_average > 0 && (
                   <span className="flex items-center gap-1.5">
                     <Star size={15} className="fill-current text-yellow-400" />
-
                     {movie.vote_average.toFixed(1)}
                   </span>
                 )}
-
                 {rottenTomatoesRating && <span>🍅 {rottenTomatoesRating}</span>}
-
                 {movie.release_date && (
                   <span>{movie.release_date.slice(0, 4)}</span>
                 )}
-
                 <span>{formatRuntime(movie.runtime)}</span>
               </div>
 
               {/* Genres */}
-
               {movie.genres?.length > 0 && (
                 <div className="mt-5 flex flex-wrap gap-2">
                   {movie.genres.map((genre) => (
@@ -463,7 +485,6 @@ const Moviepage = () => {
               )}
 
               {/* Overview */}
-
               {movie.overview && (
                 <p className="mt-5 max-w-2xl text-sm leading-6 text-gray-300 sm:text-base sm:leading-7">
                   {movie.overview}
@@ -471,7 +492,6 @@ const Moviepage = () => {
               )}
 
               {/* Actions */}
-
               <div className="mt-7 flex flex-wrap gap-3">
                 <button
                   onClick={() => setShowPlayer(true)}
@@ -493,7 +513,6 @@ const Moviepage = () => {
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-black/30 px-6 py-3.5 text-sm font-medium backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Play size={17} />
-
                   {trailerKey ? "Watch Trailer" : "Trailer Unavailable"}
                 </button>
               </div>
@@ -509,16 +528,13 @@ const Moviepage = () => {
       <section className="relative z-20 mx-auto -mt-10 max-w-[1500px] px-5 pb-12 pt-6 sm:-mt-14 sm:px-8 sm:pb-14 sm:pt-8 md:-mt-16 md:px-10 md:pb-16 lg:px-12">
         <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
           {/* Intro */}
-
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e50914]">
               Information
             </p>
-
             <h2 className="mt-2 text-2xl font-semibold sm:text-3xl">
               Movie Details
             </h2>
-
             {movie.tagline && (
               <p className="mt-4 max-w-md text-sm italic leading-6 text-gray-500">
                 “{movie.tagline}”
@@ -527,63 +543,51 @@ const Moviepage = () => {
           </div>
 
           {/* Details grid */}
-
           <div className="grid grid-cols-2 border-t border-white/10 sm:grid-cols-3">
             <div className="border-b border-white/10 py-5 pr-5">
               <p className="text-xs uppercase tracking-wider text-gray-500">
                 Status
               </p>
-
               <p className="mt-2 text-sm text-gray-200">
                 {movie.status || "N/A"}
               </p>
             </div>
-
             <div className="border-b border-white/10 px-5 py-5 sm:border-l">
               <p className="text-xs uppercase tracking-wider text-gray-500">
                 Release
               </p>
-
               <p className="mt-2 text-sm text-gray-200">
                 {movie.release_date || "N/A"}
               </p>
             </div>
-
             <div className="border-b border-white/10 py-5 pl-5 sm:border-l">
               <p className="text-xs uppercase tracking-wider text-gray-500">
                 Runtime
               </p>
-
               <p className="mt-2 text-sm text-gray-200">
                 {formatRuntime(movie.runtime)}
               </p>
             </div>
-
             <div className="border-b border-white/10 py-5 pr-5">
               <p className="text-xs uppercase tracking-wider text-gray-500">
                 Language
               </p>
-
               <p className="mt-2 text-sm uppercase text-gray-200">
                 {movie.original_language || "N/A"}
               </p>
             </div>
-
             <div className="border-b border-white/10 px-5 py-5 sm:border-l">
               <p className="text-xs uppercase tracking-wider text-gray-500">
                 Budget
               </p>
-
               <p className="mt-2 text-sm text-gray-200">
                 {movie.budget ? `$${movie.budget.toLocaleString()}` : "N/A"}
               </p>
             </div>
-
             <div className="border-b border-white/10 py-5 pl-5 sm:border-l">
               <p className="text-xs uppercase tracking-wider text-gray-500">
                 Revenue
               </p>
-
               <p className="mt-2 text-sm text-gray-200">
                 {movie.revenue ? `$${movie.revenue.toLocaleString()}` : "N/A"}
               </p>
@@ -603,18 +607,14 @@ const Moviepage = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e50914]">
                 Cast
               </p>
-
               <h2 className="mt-1 text-2xl font-semibold sm:text-3xl">
                 Meet the Cast
               </h2>
             </div>
-
             <div className="hidden items-center gap-1 text-sm text-gray-500 sm:flex">
-              Swipe
-              <ChevronRight size={16} />
+              Swipe <ChevronRight size={16} />
             </div>
           </div>
-
           <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-none sm:gap-6">
             {cast.map((person) => (
               <Personcard
@@ -627,9 +627,10 @@ const Moviepage = () => {
           </div>
         </section>
       )}
+
       {/* ==================================================
-    CREW
-================================================== */}
+          CREW
+      ================================================== */}
 
       {(directors.length > 0 || writers.length > 0 || producers.length > 0) && (
         <section className="mx-auto max-w-[1500px] px-5 pb-14 sm:px-8 md:px-10 lg:px-12">
@@ -638,21 +639,14 @@ const Moviepage = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e50914]">
                 Behind the Scenes
               </p>
-
               <h2 className="mt-1 text-2xl font-semibold sm:text-3xl">Crew</h2>
             </div>
-
             <div className="grid gap-10 md:grid-cols-3">
-              {/* =========================
-            DIRECTOR
-        ========================= */}
-
               {directors.length > 0 && (
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
                     Director
                   </p>
-
                   <div className="mt-5 flex flex-wrap gap-6">
                     {directors.map((person) => (
                       <Personcard
@@ -664,17 +658,11 @@ const Moviepage = () => {
                   </div>
                 </div>
               )}
-
-              {/* =========================
-            WRITERS
-        ========================= */}
-
               {writers.length > 0 && (
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
                     Writers
                   </p>
-
                   <div className="mt-5 flex flex-wrap gap-6">
                     {writers.map((person, index) => (
                       <Personcard
@@ -686,17 +674,11 @@ const Moviepage = () => {
                   </div>
                 </div>
               )}
-
-              {/* =========================
-            PRODUCERS
-        ========================= */}
-
               {producers.length > 0 && (
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
                     Producers
                   </p>
-
                   <div className="mt-4 space-y-3">
                     {producers.map((person, index) => (
                       <div
@@ -704,12 +686,10 @@ const Moviepage = () => {
                         className="flex items-center gap-3"
                       >
                         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#e50914]" />
-
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-gray-200">
                             {person.name}
                           </p>
-
                           <p className="mt-0.5 text-xs text-gray-500">
                             {person.job}
                           </p>
@@ -735,18 +715,14 @@ const Moviepage = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#e50914]">
                 More Movies
               </p>
-
               <h2 className="mt-1 text-2xl font-semibold sm:text-3xl">
                 You May Also Like
               </h2>
             </div>
-
             <div className="hidden items-center gap-1 text-sm text-gray-500 sm:flex">
-              Explore
-              <ChevronRight size={16} />
+              Explore <ChevronRight size={16} />
             </div>
           </div>
-
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none sm:gap-5">
             {cleanRecommendations.map((recommendation) => (
               <Link
@@ -761,25 +737,20 @@ const Moviepage = () => {
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
                   {recommendation.vote_average > 0 && (
                     <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-black/70 px-2 py-1 text-xs backdrop-blur-md opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                       <Star
                         size={11}
                         className="fill-current text-yellow-400"
                       />
-
                       {recommendation.vote_average.toFixed(1)}
                     </div>
                   )}
                 </div>
-
                 <h3 className="mt-3 truncate text-sm font-medium text-gray-200 transition-colors group-hover:text-white">
                   {recommendation.title}
                 </h3>
-
                 <p className="mt-1 text-xs text-gray-500">
                   {recommendation.release_date
                     ? recommendation.release_date.slice(0, 4)
@@ -813,7 +784,6 @@ const Moviepage = () => {
             >
               <X size={28} />
             </button>
-
             <div className="aspect-video overflow-hidden rounded-xl bg-black shadow-2xl">
               <iframe
                 className="h-full w-full"
@@ -826,9 +796,13 @@ const Moviepage = () => {
           </div>
         </div>
       )}
+
+      {/* ==================================================
+          CINEPRO VIDEO PLAYER
+      ================================================== */}
+
       {showPlayer && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-3 sm:p-6">
-          {/* Close button */}
           <button
             onClick={() => setShowPlayer(false)}
             className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-red-600"
@@ -837,16 +811,23 @@ const Moviepage = () => {
             ✕
           </button>
 
-          {/* Player */}
-          <div className="relative aspect-video w-full max-w-7xl overflow-hidden rounded-xl bg-black shadow-2xl">
-            <iframe
-              src={videoEmbedUrl}
-              title={`Watch ${movie.title}`}
-              className="h-full w-full"
-              allowFullScreen
-              allow="autoplay; fullscreen; picture-in-picture *; encrypted-media *"
-              referrerPolicy="origin-when-cross-origin"
-            />
+          <div className="relative aspect-video w-full max-w-7xl overflow-hidden rounded-xl bg-black shadow-2xl flex items-center justify-center">
+            {isFetchingStream ? (
+              <div className="flex flex-col items-center text-white">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-[#e50914] mb-4" />
+                <p>Scraping sources via CinePro...</p>
+              </div>
+            ) : streamData ? (
+              <ReactPlayer
+                url={streamData}
+                controls
+                width="100%"
+                height="100%"
+                playing={true}
+              />
+            ) : (
+              <p className="text-white">No streams found for this movie.</p>
+            )}
           </div>
         </div>
       )}
