@@ -288,7 +288,7 @@ const Moviepage = () => {
       </main>
     );
   }
-  const videoEmbedUrl = `https://multiembed.cc/embed/movie/${movie.id}?autoplay=1&mute=0`;
+  const videoEmbedUrl = `https://vidlink.pro/movie/${movie.id}?primaryColor=e50914&secondaryColor=ffffff&icon=white&autoplay=true`;
   /* --------------------------------
      Images
   -------------------------------- */
@@ -828,7 +828,6 @@ const Moviepage = () => {
       )}
       {showPlayer && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-3 sm:p-6">
-          {/* Close button */}
           <button
             onClick={() => setShowPlayer(false)}
             className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-red-600"
@@ -837,15 +836,13 @@ const Moviepage = () => {
             ✕
           </button>
 
-          {/* Player */}
           <div className="relative aspect-video w-full max-w-7xl overflow-hidden rounded-xl bg-black shadow-2xl">
             <iframe
               src={videoEmbedUrl}
               title={`Watch ${movie.title}`}
-              className="h-full w-full"
+              className="h-full w-full border-0"
               allowFullScreen
               allow="autoplay; fullscreen; picture-in-picture *; encrypted-media *"
-              referrerPolicy="origin-when-cross-origin"
             />
           </div>
         </div>
