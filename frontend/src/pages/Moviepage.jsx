@@ -241,8 +241,8 @@ const Moviepage = () => {
   }, [showTrailer]);
 
   /* --------------------------------
-   CinePro Stream Fetcher
--------------------------------- */
+     CinePro Stream Fetcher
+  -------------------------------- */
 
   useEffect(() => {
     let isMounted = true;
@@ -251,7 +251,7 @@ const Moviepage = () => {
       const fetchCineProStream = async () => {
         setIsFetchingStream(true);
         try {
-          // Updated to the standard OMSS v1.0 endpoint structure
+          // 1. Plural endpoint as per the docs
           const response = await fetch(
             `https://core-vf2j.onrender.com/v1/movies/${movie.id}`,
           );
@@ -260,10 +260,16 @@ const Moviepage = () => {
           const data = await response.json();
 
           if (isMounted) {
+            // 2. Use 'type' instead of 'format' based on the API response
             const mainStream = data.sources?.find(
-              (src) => src.format === "hls" || src.url.includes(".m3u8"),
+              (src) => src.type === "hls" || src.url.includes(".m3u8"),
             );
-            if (mainStream) setStreamData(mainStream.url);
+
+            if (mainStream) {
+              // 3. Prepend the backend URL to the relative proxy path
+              const fullUrl = `https://core-vf2j.onrender.com${mainStream.url}`;
+              setStreamData(fullUrl);
+            }
           }
         } catch (err) {
           console.error("Failed to fetch CinePro stream:", err);
@@ -275,13 +281,11 @@ const Moviepage = () => {
       fetchCineProStream();
     }
 
-    // Cleanup function prevents memory leaks and React synchronous state warnings
     return () => {
       isMounted = false;
       setStreamData(null);
     };
   }, [showPlayer, movie?.id]);
-
   /* --------------------------------
      Loading
   -------------------------------- */
