@@ -288,7 +288,7 @@ const Moviepage = () => {
       </main>
     );
   }
-  const videoEmbedUrl = `https://vidlink.pro/movie/${movie.id}?primaryColor=e50914&secondaryColor=ffffff&icon=white&autoplay=true`;
+  const videoEmbedUrl = `https://vidlink.pro/movie/${movie.id}`;
   /* --------------------------------
      Images
   -------------------------------- */
