@@ -249,9 +249,9 @@ const Moviepage = () => {
       const fetchCineProStream = async () => {
         setIsFetchingStream(true);
         try {
-          // Point this to your actual deployed CinePro instance
+          // Connected to live Render CinePro Core backend
           const response = await fetch(
-            `http://localhost:3000/sources?type=movie&tmdbId=${movie.id}`,
+            `https://core-vf2j.onrender.com/sources?type=movie&tmdbId=${movie.id}`,
           );
           const data = await response.json();
 
