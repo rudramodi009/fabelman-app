@@ -251,23 +251,25 @@ const Moviepage = () => {
       const fetchCineProStream = async () => {
         setIsFetchingStream(true);
         try {
-          // 1. Plural endpoint as per the docs
-          // Clean the ID by forcing it into a strict integer
+          // Force the ID into a perfectly clean string to satisfy strict OMSS regex
+          const cleanId = String(movie.id).trim();
+
           const response = await fetch(
-            `https://core-vf2j.onrender.com/v1/movies/${parseInt(movie.id)}`,
+            `https://core-vf2j.onrender.com/v1/movies/${cleanId}`,
           );
 
-          if (!response.ok) throw new Error("Endpoint not found");
+          if (!response.ok)
+            throw new Error(`Backend rejected request: ${response.status}`);
           const data = await response.json();
 
           if (isMounted) {
-            // 2. Use 'type' instead of 'format' based on the API response
+            // Find stream matching 'hls' type as per the OMSS docs
             const mainStream = data.sources?.find(
               (src) => src.type === "hls" || src.url.includes(".m3u8"),
             );
 
             if (mainStream) {
-              // 3. Prepend the backend URL to the relative proxy path
+              // Prepend Render domain to the relative proxy path
               const fullUrl = `https://core-vf2j.onrender.com${mainStream.url}`;
               setStreamData(fullUrl);
             }
