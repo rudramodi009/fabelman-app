@@ -288,7 +288,7 @@ const Moviepage = () => {
       </main>
     );
   }
-  const videoEmbedUrl = `https://vidlink.pro/movie/${movie.id}?autoplay=false`;
+  const videoEmbedUrl = `https://embed.su/embed/movie/${movie.id}`;
   /* --------------------------------
      Images
   -------------------------------- */
