@@ -293,7 +293,7 @@ const Moviepage = () => {
   const servers = [
     {
       name: "Cinesrc",
-      url: `https://cinesrc.com/embed/movie/${movie?.id}`,
+      url: `https://cinesrc.st/embed/movie/${movie?.id}`,
     },
     {
       name: "CineBloom",
