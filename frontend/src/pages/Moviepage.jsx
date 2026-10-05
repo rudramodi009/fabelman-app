@@ -288,7 +288,7 @@ const Moviepage = () => {
       </main>
     );
   }
-  const videoEmbedUrl = `https://vidlink.pro/movie/${movie.id}`;
+  const videoEmbedUrl = `https://vidsrc.sbs/embed/movie/${movie.id}`;
   /* --------------------------------
      Images
   -------------------------------- */
