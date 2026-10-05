@@ -19,6 +19,7 @@ const Moviepage = () => {
   const [trailerKey, setTrailerKey] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
   const [ratings, setRatings] = useState(null);
+  const [currentServerIndex, setCurrentServerIndex] = useState(0);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -288,7 +289,44 @@ const Moviepage = () => {
       </main>
     );
   }
-  const videoEmbedUrl = `https://vidsrc.sbs/embed/movie/${movie.id}`;
+  // Array of 10 reliable streaming servers
+  const servers = [
+    {
+      name: "VidLink (HD)",
+      url: `https://vidlink.pro/movie/${movie?.id}?primaryColor=e50914&autoplay=true`,
+    },
+    {
+      name: "VidSrc PRO",
+      url: `https://vidsrc.cc/v2/embed/movie/${movie?.id}?autoPlay=true`,
+    },
+    { name: "VidSrc SBS", url: `https://vidsrc.sbs/embed/movie/${movie?.id}` },
+    {
+      name: "AutoEmbed",
+      url: `https://player.autoembed.cc/embed/movie/${movie?.id}`,
+    },
+    {
+      name: "MultiEmbed",
+      url: `https://multiembed.mov/?video_id=${movie?.id}&tmdb=1`,
+    },
+    { name: "Embed.su", url: `https://embed.su/embed/movie/${movie?.id}` },
+    { name: "VidSrc RIP", url: `https://vidsrc.rip/embed/movie/${movie?.id}` },
+    {
+      name: "VidSrc ME",
+      url: `https://vidsrc.me/embed/movie?tmdb=${movie?.id}`,
+    },
+    {
+      name: "SmashyStream",
+      url: `https://player.smashy.stream/movie/${movie?.id}`,
+    },
+    { name: "VidSrc IN", url: `https://vidsrc.in/embed/movie/${movie?.id}` },
+  ];
+
+  // Auto-fallback if the iframe network request is completely blocked by an ISP
+  const handleIframeError = () => {
+    if (currentServerIndex < servers.length - 1) {
+      setCurrentServerIndex((prev) => prev + 1);
+    }
+  };
   /* --------------------------------
      Images
   -------------------------------- */
@@ -826,25 +864,57 @@ const Moviepage = () => {
           </div>
         </div>
       )}
+      {/* ==================================================
+          MULTI-SERVER VIDEO PLAYER
+      ================================================== */}
       {showPlayer && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-3 sm:p-6">
-          <button
-            onClick={() => setShowPlayer(false)}
-            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-red-600"
-            aria-label="Close player"
-          >
-            ✕
-          </button>
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 p-3 sm:p-6 backdrop-blur-md">
+          {/* Header Controls & Server Switcher */}
+          <div className="flex w-full max-w-7xl items-center justify-between mb-4">
+            <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+              {servers.map((server, index) => (
+                <button
+                  key={server.name}
+                  onClick={() => setCurrentServerIndex(index)}
+                  className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-medium transition-colors ${
+                    currentServerIndex === index
+                      ? "bg-[#e50914] text-white shadow-lg shadow-red-500/30"
+                      : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
+                  }`}
+                >
+                  {server.name}
+                </button>
+              ))}
+            </div>
 
-          <div className="relative aspect-video w-full max-w-7xl overflow-hidden rounded-xl bg-black shadow-2xl">
+            <button
+              onClick={() => {
+                setShowPlayer(false);
+                setCurrentServerIndex(0); // Reset to primary server on close
+              }}
+              className="ml-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-red-600"
+              aria-label="Close player"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Video Iframe */}
+          <div className="relative aspect-video w-full max-w-7xl overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-white/10">
             <iframe
-              src={videoEmbedUrl}
-              title={`Watch ${movie.title}`}
+              src={servers[currentServerIndex].url}
+              title={`Watch ${movie?.title}`}
               className="h-full w-full border-0"
               allowFullScreen
+              onError={handleIframeError}
               allow="autoplay; fullscreen; picture-in-picture *; encrypted-media *"
             />
           </div>
+
+          <p className="mt-4 max-w-3xl text-center text-sm text-gray-400">
+            If the video doesn't load or is blocked by your ISP, please select a
+            different server from the tabs above.
+          </p>
         </div>
       )}
     </main>
