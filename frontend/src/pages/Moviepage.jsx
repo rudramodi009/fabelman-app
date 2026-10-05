@@ -292,6 +292,14 @@ const Moviepage = () => {
   // Array of 10 reliable streaming servers
   const servers = [
     {
+      name: "Cinesrc",
+      url: `https://cinesrc.com/embed/movie/${movie?.id}`,
+    },
+    {
+      name: "CineBloom",
+      url: `https://cinebloom.com/embed/movie/${movie?.id}`,
+    },
+    {
       name: "VidLink (HD)",
       url: `https://vidlink.pro/movie/${movie?.id}?primaryColor=e50914&autoplay=true`,
     },
