@@ -296,37 +296,10 @@ const Moviepage = () => {
       url: `https://cinesrc.st/embed/movie/${movie?.id}`,
     },
     {
-      name: "CineBloom",
-      url: `https://cinebloom.com/embed/movie/${movie?.id}`,
-    },
-    {
       name: "VidLink (HD)",
       url: `https://vidlink.pro/movie/${movie?.id}?primaryColor=e50914&autoplay=true`,
     },
-    {
-      name: "VidSrc PRO",
-      url: `https://vidsrc.cc/v2/embed/movie/${movie?.id}?autoPlay=true`,
-    },
-    { name: "VidSrc SBS", url: `https://vidsrc.sbs/embed/movie/${movie?.id}` },
-    {
-      name: "AutoEmbed",
-      url: `https://player.autoembed.cc/embed/movie/${movie?.id}`,
-    },
-    {
-      name: "MultiEmbed",
-      url: `https://multiembed.mov/?video_id=${movie?.id}&tmdb=1`,
-    },
-    { name: "Embed.su", url: `https://embed.su/embed/movie/${movie?.id}` },
-    { name: "VidSrc RIP", url: `https://vidsrc.rip/embed/movie/${movie?.id}` },
-    {
-      name: "VidSrc ME",
-      url: `https://vidsrc.me/embed/movie?tmdb=${movie?.id}`,
-    },
-    {
-      name: "SmashyStream",
-      url: `https://player.smashy.stream/movie/${movie?.id}`,
-    },
-    { name: "VidSrc IN", url: `https://vidsrc.in/embed/movie/${movie?.id}` },
+    { name: "VidSrc sh", url: `https://vidsrc.sh/embed/movie/${movie?.id}` },
   ];
 
   // Auto-fallback if the iframe network request is completely blocked by an ISP
