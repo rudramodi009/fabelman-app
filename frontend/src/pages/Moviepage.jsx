@@ -300,6 +300,8 @@ const Moviepage = () => {
       url: `https://vidlink.pro/movie/${movie?.id}?primaryColor=e50914&autoplay=true`,
     },
     { name: "VidSrc sh", url: `https://vidsrc.sh/embed/movie/${movie?.id}` },
+    { name: "filmU", url: `https://embed.filmu.in/movie/${movie?.id}` },
+    { name: "VidCore", url: `https://vidcore.org/embed/movie/${movie?.id}` },
   ];
 
   // Auto-fallback if the iframe network request is completely blocked by an ISP
