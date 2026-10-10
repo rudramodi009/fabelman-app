@@ -313,7 +313,7 @@ const Moviepage = () => {
     { name: "VidCore", url: `https://vidcore.org/embed/movie/${movie?.id}` },
     {
       name: "Primesrc",
-      url: `https://primesrc.me/embed/movie/${movie?.id}?autoplay=true`,
+      url: `https://primesrc.me/embed/movie/tmdb=${movie?.id}?autoplay=true`,
     },
   ];
 
