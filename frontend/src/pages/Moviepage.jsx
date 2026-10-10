@@ -296,24 +296,24 @@ const Moviepage = () => {
       url: `https://cinesrc.st/embed/movie/${movie?.id}`,
     },
     {
-      name: "VidLink (HD)",
-      url: `https://vidlink.pro/movie/${movie?.id}?primaryColor=e50914&autoplay=true`,
-    },
-    { name: "VixSrc", url: `https://vixsrc.to/movie/${movie?.id}` },
-    { name: "filmU", url: `https://embed.filmu.in/movie/${movie?.id}` },
-    { name: "VidCore", url: `https://vidcore.org/embed/movie/${movie?.id}` },
-    {
       name: "Vidfast",
       url: `https://vidfast.vc/movie/${movie?.id}?autoPlay=true`,
     },
     { name: "VidRock", url: `https://vidrock.net/movie/${movie?.id}` },
     {
-      name: "Primesrc",
-      url: `https://primesrc.me/embed/movie/${movie?.id}?autoplay=true`,
-    },
-    {
       name: "vidnest",
       url: `https://vidnest.fun/movie/${movie?.id}?autoplay=true`,
+    },
+    {
+      name: "VidLink (HD)",
+      url: `https://vidlink.pro/movie/${movie?.id}?primaryColor=e50914&autoplay=true`,
+    },
+
+    { name: "filmU", url: `https://embed.filmu.in/movie/${movie?.id}` },
+    { name: "VidCore", url: `https://vidcore.org/embed/movie/${movie?.id}` },
+    {
+      name: "Primesrc",
+      url: `https://primesrc.me/embed/movie/${movie?.id}?autoplay=true`,
     },
   ];
 
